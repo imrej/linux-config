@@ -1,0 +1,85 @@
+---
+- hosts: localhost
+  become: yes
+  tasks:
+
+  - name: ensure chromuim is at the latest version
+    apt:
+      name: chromium-browser
+      state: latest
+      update_cache: yes
+
+  - name: Install prerequisites for docker
+    apt:     name={{item}} update_cache=yes
+    with_items:
+     - apt-transport-https
+     - ca-certificates
+     - curl
+     - software-properties-common
+
+  - name:    Add Docker GPG key
+    apt_key: url=https://download.docker.com/linux/ubuntu/gpg
+  - name:    Add Docker APT repository
+    apt_repository:
+      repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ansible_distribution_release}} edge
+
+  - name:    Install Docker
+    apt:
+      name: docker-ce
+      update_cache: yes
+
+  - name: ensure gnome-tweak-tool is at the latest version
+    apt:jdk
+      name: gnome-tweak-tooljdk
+      state: latest
+      update_cache: yes
+
+  - name: add myself to docker group
+    user:
+      name: "{{ lookup('env','USER') }}"
+      group: docker
+
+  - name:    Add atom APT repository
+    apt_repository:
+      repo: ppa:webupd8team/atom
+
+  - name:    Install atom
+    apt:
+      name: atom
+      update_cache: yes
+
+  - name:    Install tmux
+    apt:
+      name: tmux
+      update_cache: yes
+
+  - name: pip install
+    apt:
+      name: python-pip
+      state: latest
+      update_cache: yes
+
+  - name: install docker.py
+    pip:
+      name: docker
+
+  - name: Git Docker
+    docker_image:
+      name: alpine/git
+
+  - name: update profile
+    lineinfile:
+      dest: "/home/{{ lookup('env','USER') }}/.profile"
+      state: present
+      line: 'function git () {
+             (docker run -ti --rm -v ${HOME}:/root -v $(pwd):/git alpine/git "$@")
+            }'
+            
+#TODO:variable java version
+  - name: java install
+    apt:
+      name: openjdk-8-jdk
+      state: latest
+      update_cache: yes
+
+#add maven
