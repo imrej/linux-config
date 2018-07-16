@@ -67,7 +67,11 @@
     docker_image:
       name: alpine/git
 
-  - name: update profile
+  - name: maven Docker
+    docker_image:
+      name: maven:3.5.4-jdk-{{ java_version }}-slim
+
+  - name: update profile to add git command
     lineinfile:
       dest: "/home/{{ lookup('env','USER') }}/.profile"
       state: present
@@ -75,8 +79,22 @@
              (docker run -ti --rm -v ${HOME}:/root -v $(pwd):/git alpine/git "$@")
             }'
 
-#TODO:variable java version
-  - name: java install
+
+  - name: update profile to remove previous maven version
+    lineinfile:
+      dest: "/home/{{ lookup('env','USER') }}/.profile"
+      state: absent
+      regexp: "function mvn ()*"
+
+  - name: update profile to add maven command
+    lineinfile:
+      dest: "/home/{{ lookup('env','USER') }}/.profile"
+      state: present
+      line: 'function mvn () {
+             (docker run -ti --rm -v ${HOME}:/root -v $(pwd):/mvn maven:3.5.4-jdk-{{ java_version }}-slim "$@")
+             }'
+
+  - name: java install {{ java_version }}
     apt:
       name: openjdk-{{ java_version }}-jdk
       state: latest
