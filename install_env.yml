@@ -29,8 +29,8 @@
       update_cache: yes
 
   - name: ensure gnome-tweak-tool is at the latest version
-    apt:jdk
-      name: gnome-tweak-tooljdk
+    apt:
+      name: gnome-tweak-tool
       state: latest
       update_cache: yes
 
@@ -74,12 +74,16 @@
       line: 'function git () {
              (docker run -ti --rm -v ${HOME}:/root -v $(pwd):/git alpine/git "$@")
             }'
-            
+
 #TODO:variable java version
   - name: java install
     apt:
-      name: openjdk-8-jdk
+      name: openjdk-{{ java_version }}-jdk
       state: latest
       update_cache: yes
+
+  - name: Install jd-gui .deb package from the internet.
+    apt:
+      deb: https://github.com/java-decompiler/jd-gui/releases/download/v1.4.0/jd-gui_1.4.0-0_all.deb
 
 #add maven
