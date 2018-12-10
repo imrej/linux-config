@@ -100,8 +100,19 @@
       state: latest
       update_cache: yes
 
-  - name: Install jd-gui .deb package from the internet.
+ - name: Install jd-gui .deb package from the internet.
     apt:
       deb: https://github.com/java-decompiler/jd-gui/releases/download/v1.4.0/jd-gui_1.4.0-0_all.deb
+
+
+  - name: update profile to add kapitan command
+    lineinfile:
+      dest: "/home/{{ lookup('env','USER') }}/.profile"
+      state: present
+      line: 'function kapitan () {
+             (docker run -t --rm -v $(pwd):/src:delegated deepmind/kapitan "$@")
+            }'
+
+
 
 #add maven
